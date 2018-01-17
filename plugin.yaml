@@ -1,0 +1,46 @@
+plugins:
+
+  mysql:
+    executor: central_deployment_agent
+    package_name: cloudify-mysql-plugin
+    package_version: '0.1'
+    source: https://github.com/EarthmanT/cloudify-mysql-plugin/archive/master.zip
+
+dsl_definitions:
+
+  _: &execute_arguments
+    mysql_host:
+      type: string
+      default: 'localhost'
+    mysql_username:
+      type: string
+      default: 'root'
+    myql_password:
+      type: string
+      default: ''
+    mysql_database:
+      type: string
+      default: 'mysql'
+    mysql_commands:
+      default: []
+
+node_type:
+
+  cloudify.mysql.nodes.Commands:
+    derived_from: cloudify.nodes.Root
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create: {}
+        configure:
+          implementation: mysql.cloudify_mysql.tasks.execute
+          inputs: *execute_arguments
+        start: {}
+        stop: {}
+        delete: {}
+
+
+workflows:
+
+  execute_commands:
+    mapping: mysql.cloudify_mysql.tasks.execute
+    parameters: *execute_arguments
